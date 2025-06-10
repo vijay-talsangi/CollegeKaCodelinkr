@@ -6,6 +6,7 @@ import Editor from '@monaco-editor/react';
 import { supabase } from '@/lib/supabase';
 import { Code, Play, Eye } from 'lucide-react';
 import Link from 'next/link';
+import { useCallback } from 'react';
 
 // type Runtime = {
 //   language: string;
@@ -60,19 +61,14 @@ export default function SharedProjectPage() {
     };
   }, []);
 
-  // Load project data
-  useEffect(() => {
-    if (token) {
-      loadSharedProject();
-    }
-  }, [token]);
+  
 
   // Load runtimes
   // useEffect(() => {
   //   fetchRuntimes();
   // }, []);
 
-  const loadSharedProject = async () => {
+  const loadSharedProject = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('projects')
@@ -97,7 +93,14 @@ export default function SharedProjectPage() {
       setError('Failed to load project');
       setProjectLoading(false);
     }
-  };
+  }, [token]);
+
+  // Load project data
+  useEffect(() => {
+    if (token) {
+      loadSharedProject();
+    }
+  }, [token, loadSharedProject]);
 
   // const fetchRuntimes = async () => {
   //   try {
@@ -139,13 +142,13 @@ export default function SharedProjectPage() {
     document.body.style.userSelect = 'none';
   };
 
-  const stopDrag = () => {
+  const stopDrag = useCallback(() => {
     setIsDragging(false);
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-  };
+  },[]);
 
-  const onDrag = (e: MouseEvent) => {
+  const onDrag = useCallback((e: MouseEvent) => {
     if (!isDragging || !containerRef.current || isMobile) return;
     
     const containerRect = containerRef.current.getBoundingClientRect();
@@ -154,7 +157,9 @@ export default function SharedProjectPage() {
     const newWidthPercentage = (mouseX / containerWidth) * 100;
     
     setEditorWidth(Math.min(Math.max(newWidthPercentage, 30), 85));
-  };
+  },
+    [isDragging, isMobile, containerRef]
+  );
 
   useEffect(() => {
     if (isDragging) {
@@ -165,7 +170,7 @@ export default function SharedProjectPage() {
         window.removeEventListener('mouseup', stopDrag);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, onDrag, stopDrag]);
 
   if (projectLoading) {
     return (

@@ -15,6 +15,7 @@ import {
   Eye,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useCallback } from 'react';
 
 // type Runtime = {
 //   language: string;
@@ -79,38 +80,16 @@ export default function IDEPage() {
     };
   }, []);
 
-  // Load project data
-  useEffect(() => {
-    if (projectId && user) {
-      loadProject();
-    }
-  }, [projectId, user]);
+  
 
   // // Load runtimes
   // useEffect(() => {
   //   fetchRuntimes();
   // }, []);
 
-  // Auto-save functionality
-  useEffect(() => {
-    if (project && hasEditPermission && code !== project.code) {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-      
-      saveTimeoutRef.current = setTimeout(() => {
-        saveProject();
-      }, 1000); // Auto-save after 2 seconds of inactivity
-    }
+  
 
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [code, project, hasEditPermission]);
-
-  const loadProject = async () => {
+  const loadProject = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('projects')
@@ -141,7 +120,14 @@ export default function IDEPage() {
       console.error('Error loading project:', error);
       router.push('/dashboard');
     }
-  };
+  }, [projectId, router, user?.id]);
+
+  // Load project data
+  useEffect(() => {
+    if (projectId && user) {
+      loadProject();
+    }
+  }, [projectId, user, loadProject]);
 
   // const fetchRuntimes = async () => {
   //   try {
@@ -157,7 +143,7 @@ export default function IDEPage() {
   //   }
   // };
 
-  const saveProject = async () => {
+  const saveProject = useCallback(async () => {
     if (!project || !hasEditPermission) return;
 
     setSaving(true);
@@ -178,7 +164,26 @@ export default function IDEPage() {
     } finally {
       setSaving(false);
     }
-  };
+  }, [project, hasEditPermission, code, language, version, projectId]);
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (project && hasEditPermission && code !== project.code) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      
+      saveTimeoutRef.current = setTimeout(() => {
+        saveProject();
+      }, 1000); // Auto-save after 2 seconds of inactivity
+    }
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [code, project, hasEditPermission, saveProject]);
 
   const handleRun = async () => {
     setLoading(true);
@@ -243,13 +248,13 @@ export default function IDEPage() {
     document.body.style.userSelect = 'none';
   };
 
-  const stopDrag = () => {
+  const stopDrag = useCallback(() => {
     setIsDragging(false);
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-  };
+  }, []);
 
-  const onDrag = (e: MouseEvent) => {
+  const onDrag = useCallback((e: MouseEvent) => {
     if (!isDragging || !containerRef.current || isMobile) return;
     
     const containerRect = containerRef.current.getBoundingClientRect();
@@ -258,7 +263,7 @@ export default function IDEPage() {
     const newWidthPercentage = (mouseX / containerWidth) * 100;
     
     setEditorWidth(Math.min(Math.max(newWidthPercentage, 30), 85));
-  };
+  },[isDragging, isMobile, containerRef]);
 
   useEffect(() => {
     if (isDragging) {
@@ -269,7 +274,7 @@ export default function IDEPage() {
         window.removeEventListener('mouseup', stopDrag);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, onDrag, stopDrag]);
 
   if (!project) {
     return (

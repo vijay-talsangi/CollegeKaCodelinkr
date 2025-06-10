@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function CoffeePage() {
   return (
@@ -11,10 +12,12 @@ export default function CoffeePage() {
           Thank you! ☕
         </p>
         <div className="bg-black p-4 rounded-lg">
-          <img
-            src="/qr-code.png" // Replace with the path to your QR code image
+          <Image
+            src="/qr-code.png" // Replace with the correct path to your QR code
             alt="QR Code"
-            className="w-60 h-60 mx-auto"
+            width={200}
+            height={200}
+            className="mx-auto"
           />
         </div>
         <Link

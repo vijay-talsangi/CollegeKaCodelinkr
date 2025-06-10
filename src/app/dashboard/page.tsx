@@ -8,6 +8,7 @@ import { Plus, Code, Calendar, Share, Trash2, Edit } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 import { useAuth } from '@clerk/nextjs';
 import { createSupabaseClientWithToken } from '@/lib/supabaseClientWithToken';
+import { useCallback } from 'react';
 
 
 
@@ -30,13 +31,9 @@ export default function Dashboard() {
   const [newProjectLanguage, setNewProjectLanguage] = useState('javascript');
   const { getToken } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      fetchProjects();
-    }
-  }, [user]);
+  
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const token = await getToken({ template: 'supabase' });
       const supabaseWithAuth = createSupabaseClientWithToken(token!);
@@ -53,7 +50,13 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getToken, user?.id]);
+
+  useEffect(() => {
+    if (user) {
+      fetchProjects();
+    }
+  }, [user, fetchProjects]);
 
   const createProject = async () => {
     if (!newProjectTitle.trim()) {
