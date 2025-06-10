@@ -7,12 +7,12 @@ import { supabase } from '@/lib/supabase';
 import { Code, Play, Eye } from 'lucide-react';
 import Link from 'next/link';
 
-type Runtime = {
-  language: string;
-  version: string;
-  aliases?: string[];
-  runtime?: string;
-};
+// type Runtime = {
+//   language: string;
+//   version: string;
+//   aliases?: string[];
+//   runtime?: string;
+// };
 
 type Project = {
   id: string;
@@ -35,7 +35,7 @@ export default function SharedProjectPage() {
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState('javascript');
   const [version, setVersion] = useState('');
-  const [runtimes, setRuntimes] = useState<Runtime[]>([]);
+  // const [_runtimes, setRuntimes] = useState<Runtime[]>([]);
   const [output, setOutput] = useState('');
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,9 +68,9 @@ export default function SharedProjectPage() {
   }, [token]);
 
   // Load runtimes
-  useEffect(() => {
-    fetchRuntimes();
-  }, []);
+  // useEffect(() => {
+  //   fetchRuntimes();
+  // }, []);
 
   const loadSharedProject = async () => {
     try {
@@ -99,19 +99,19 @@ export default function SharedProjectPage() {
     }
   };
 
-  const fetchRuntimes = async () => {
-    try {
-      const res = await fetch('/api/listLanguage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+  // const fetchRuntimes = async () => {
+  //   try {
+  //     const res = await fetch('/api/listLanguage', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //     });
       
-      const data = await res.json();
-      setRuntimes(data);
-    } catch (error) {
-      console.error('Failed to fetch runtimes:', error);
-    }
-  };
+  //     const data = await res.json();
+  //     setRuntimes(data);
+  //   } catch (error) {
+  //     console.error('Failed to fetch runtimes:', error);
+  //   }
+  // };
 
   const handleRun = async () => {
     setLoading(true);
@@ -132,7 +132,7 @@ export default function SharedProjectPage() {
   };
 
   // Resizing logic
-  const startDrag = (e: React.MouseEvent) => {
+  const startDrag = () => {
     if (isMobile) return;
     setIsDragging(true);
     document.body.style.cursor = 'col-resize';

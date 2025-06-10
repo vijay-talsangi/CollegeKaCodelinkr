@@ -61,23 +61,23 @@ export async function POST(req: Request) {
       error: false,
       executionTime: result.run.time
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API execution error:', error);
     
     // Handle axios errors
-    if (error.response) {
+    if (axios.isAxiosError(error) && error.response) {
       // The server responded with a status code outside the 2xx range
       return NextResponse.json(
         { error: `Server Error: ${error.response.status}`, details: error.response.data },
         { status: error.response.status }
       );
-    } else if (error.request) {
+    } else if (axios.isAxiosError(error) && error.request) {
       // The request was made but no response was received
       return NextResponse.json(
         { error: 'No response from execution server. It might be offline or overloaded.' },
         { status: 503 }
       );
-    } else if (error.code === 'ECONNABORTED') {
+    } else if ((error as Error & { code?: string }).code === 'ECONNABORTED') {
       // Timeout occurred
       return NextResponse.json(
         { error: 'Code execution timed out. Your code might have an infinite loop or is too complex.' },
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     } else {
       // Something else happened
       return NextResponse.json(
-        { error: `Error: ${error.message}` },
+        { error: `Error: ${(error as Error).message}` },
         { status: 500 }
       );
     }

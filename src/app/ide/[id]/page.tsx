@@ -7,26 +7,21 @@ import Editor from '@monaco-editor/react';
 import { supabase } from '@/lib/supabase';
 import { UserButton } from '@clerk/nextjs';
 import { 
-  Code, 
   Play, 
   Share, 
-  Save, 
-  Users, 
-  Settings, 
   ArrowLeft,
   Copy,
   Check,
   Eye,
-  Edit
 } from 'lucide-react';
 import Link from 'next/link';
 
-type Runtime = {
-  language: string;
-  version: string;
-  aliases?: string[];
-  runtime?: string;
-};
+// type Runtime = {
+//   language: string;
+//   version: string;
+//   aliases?: string[];
+//   runtime?: string;
+// };
 
 type Project = {
   id: string;
@@ -41,7 +36,7 @@ type Project = {
   updated_at: string;
 };
 
-type PanelType = 'output' | 'debug';
+// type PanelType = 'output' | 'debug';
 
 export default function IDEPage() {
   const { user } = useUser();
@@ -53,12 +48,12 @@ export default function IDEPage() {
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState('javascript');
   const [version, setVersion] = useState('');
-  const [runtimes, setRuntimes] = useState<Runtime[]>([]);
+  // const [_runtimes, setRuntimes] = useState<Runtime[]>([]);
   const [output, setOutput] = useState('');
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [panel, setPanel] = useState<PanelType>('output');
+  // const [_panel, setPanel] = useState<PanelType>('output');
   const [editorWidth, setEditorWidth] = useState(70);
   const [isDragging, setIsDragging] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -91,10 +86,10 @@ export default function IDEPage() {
     }
   }, [projectId, user]);
 
-  // Load runtimes
-  useEffect(() => {
-    fetchRuntimes();
-  }, []);
+  // // Load runtimes
+  // useEffect(() => {
+  //   fetchRuntimes();
+  // }, []);
 
   // Auto-save functionality
   useEffect(() => {
@@ -148,19 +143,19 @@ export default function IDEPage() {
     }
   };
 
-  const fetchRuntimes = async () => {
-    try {
-      const res = await fetch('/api/listLanguage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+  // const fetchRuntimes = async () => {
+  //   try {
+  //     const res = await fetch('/api/listLanguage', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //     });
       
-      const data = await res.json();
-      setRuntimes(data);
-    } catch (error) {
-      console.error('Failed to fetch runtimes:', error);
-    }
-  };
+  //     const data = await res.json();
+  //     setRuntimes(data);
+  //   } catch (error) {
+  //     console.error('Failed to fetch runtimes:', error);
+  //   }
+  // };
 
   const saveProject = async () => {
     if (!project || !hasEditPermission) return;
@@ -187,7 +182,6 @@ export default function IDEPage() {
 
   const handleRun = async () => {
     setLoading(true);
-    setPanel('output');
     try {
       const res = await fetch('/api/run', {
         method: 'POST',
@@ -239,16 +233,10 @@ export default function IDEPage() {
     }
   };
 
-  const handleLanguageChange = (lang: string) => {
-    if (!hasEditPermission) return;
-    
-    setLanguage(lang);
-    const selected = runtimes.find((r) => r.language === lang);
-    if (selected) setVersion(selected.version);
-  };
+
 
   // Resizing logic
-  const startDrag = (e: React.MouseEvent) => {
+  const startDrag = () => {
     if (isMobile) return;
     setIsDragging(true);
     document.body.style.cursor = 'col-resize';

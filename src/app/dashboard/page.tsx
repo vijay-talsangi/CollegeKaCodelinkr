@@ -69,7 +69,7 @@ export default function Dashboard() {
         .insert({
           title: newProjectTitle,
           language: newProjectLanguage,
-          user_id: user?.id!,
+          user_id: user?.id,
           code: getDefaultCode(newProjectLanguage),
           version: getDefaultVersion(newProjectLanguage),
         })
@@ -147,7 +147,9 @@ export default function Dashboard() {
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Code className="h-8 w-8 text-blue-400" />
-            <span className="text-2xl font-bold">Codelinkr</span>
+            <Link href="/" className="text-2xl font-bold text-white hover:text-blue-400 transition">
+              Codelinkr
+            </Link>
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-gray-300">Welcome, {user?.firstName}!</span>
