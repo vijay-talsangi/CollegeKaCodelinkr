@@ -64,7 +64,7 @@ export default function IDEPage() {
   const [hasEditPermission, setHasEditPermission] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Detect mobile devices
   useEffect(() => {
