@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+```markdown
+# Codelinkr
 
-## Getting Started
+## Description
 
-First, run the development server:
+Codelinkr is an online collaborative code IDE that allows you to code in your favorite language and generate a shareable link.  Anyone with the link can view the code. Future updates will include editing capabilities, AI-powered code analysis and summarization, and support for more programming languages.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+*   **Real-time Code Collaboration:** Code together with others in a shared online environment.
+*   **Shareable Links:** Generate unique links to easily share your code with others.
+*   **Syntax Highlighting:** Provides syntax highlighting for various programming languages.
+*   **Monaco Editor:** Utilizes the powerful Monaco Editor for a rich coding experience.
+*   **Future AI Integration:** Planned features include AI-powered code analysis and summarization.
+*   **Future Editing Capabilities:** Planned feature to allow editing of shared code by collaborators.
+*   **Future Language Support:** Planned expansion to support a wider range of programming languages.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technologies Used
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+*   **Next.js:** A React framework for building web applications.
+*   **React:** A JavaScript library for building user interfaces.
+*   **@clerk/nextjs:** Authentication and user management.
+*   **@monaco-editor/react:** React component for the Monaco Editor.
+*   **@supabase/supabase-js:** JavaScript client for Supabase.
+*   **Axios:** HTTP client for making API requests.
+*   **Lucide-react:** Beautifully simple icons.
+*   **React-resizable:** Component for resizable elements.
+*   **Socket.io-client:** Enables real-time, bidirectional communication.
+*   **Vm:** Provides a virtual machine environment for code execution (potentially sandboxed).
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## To Access Codelinkr
+`https://codelinkr.vercel.app/`.
