@@ -252,10 +252,12 @@ export default function Dashboard() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <div key={project.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-gray-600 transition">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-semibold truncate">{project.title}</h3>
-                  <div className="flex space-x-2">
+              <div key={project.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-gray-600 transition flex flex-col">
+                <div className="flex justify-between items-start mb-4 gap-2">
+                  <div className="min-w-0">
+                     <h3 className="text-lg font-semibold break-words">{project.title}</h3>
+                  </div>
+                  <div className="flex space-x-2 flex-shrink-0">
                     <Link
                       href={`/ide/${project.id}`}
                       className="text-blue-400 hover:text-blue-300 transition"
@@ -273,7 +275,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 
-                <div className="space-y-2 text-sm text-gray-400">
+                <div className="space-y-2 text-sm text-gray-400 flex-grow">
                   <div className="flex items-center space-x-2">
                     <Code className="h-4 w-4" />
                     <span className="capitalize">{project.language}</span>
