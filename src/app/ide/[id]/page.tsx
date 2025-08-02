@@ -16,6 +16,7 @@ import {
   Sparkles,
   ChevronUp,
   ChevronDown,
+  TextCursorInput,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback } from 'react';
@@ -74,7 +75,7 @@ export default function IDEPage() {
   const [geminiLoading, setGeminiLoading] = useState(false);
   const [geminiResponse, setGeminiResponse] = useState<{ summary: string; newCode: string } | null>(null);
   const [geminiError, setGeminiError] = useState<string | null>(null);
-  
+
   // State for collapsible panels on mobile
   const [activeMobilePanel, setActiveMobilePanel] = useState<'input' | 'output' | 'gemini'>('output');
 
@@ -154,7 +155,7 @@ export default function IDEPage() {
   //       method: 'POST',
   //       headers: { 'Content-Type': 'application/json' },
   //     });
-      
+
   //     const data = await res.json();
   //     setRuntimes(data);
   //   } catch (error) {
@@ -265,7 +266,7 @@ export default function IDEPage() {
       const res = await fetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, query: geminiQuery }),
+        body: JSON.stringify({ code, query: geminiQuery, language }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -324,7 +325,7 @@ export default function IDEPage() {
       };
     }
   }, [isDragging, onDrag, stopDrag]);
-  
+
   // Vertical Resizing Logic for side panel
   const startPanelDrag = useCallback((e: React.MouseEvent, dividerIndex: number) => {
     e.preventDefault();
@@ -339,7 +340,7 @@ export default function IDEPage() {
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
   }, []);
-  
+
   const onPanelDrag = useCallback((e: MouseEvent) => {
     if (isDraggingPanel === null || !rightPanelRef.current) return;
 
@@ -348,7 +349,7 @@ export default function IDEPage() {
 
     const totalHeight = rightPanelRef.current.getBoundingClientRect().height;
     if (totalHeight === 0) return;
-    
+
     const deltaPercent = (deltaY / totalHeight) * 100;
 
     const newHeights = [...panelHeights];
@@ -418,43 +419,49 @@ export default function IDEPage() {
       )}
       {panel === 'gemini' && (
         <div className="space-y-2">
-           <textarea
-              value={geminiQuery}
-              onChange={(e) => setGeminiQuery(e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm"
-              rows={2}
-              placeholder="Ask Assistant to explain, refactor, or optimize..."
-            />
-            <button
-              onClick={handleAskGemini}
-              className="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded flex items-center justify-center space-x-2 transition text-sm"
-              disabled={geminiLoading}
-            >
-              <span>{geminiLoading ? 'Thinking...' : 'Ask Assistant'}</span>
-            </button>
+          <textarea
+            value={geminiQuery}
+            onChange={(e) => setGeminiQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Prevent adding a new line
+                handleAskGemini(); // Submit the query
+              }
+            }}
+            className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm"
+            rows={2}
+            placeholder="Ask Assistant to explain, refactor, or optimize..."
+          />
+          <button
+            onClick={handleAskGemini}
+            className="w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded flex items-center justify-center space-x-2 transition text-sm"
+            disabled={geminiLoading}
+          >
+            <span>{geminiLoading ? 'Thinking...' : 'Ask Assistant'}</span>
+          </button>
 
-            {geminiLoading && <div className="mt-2 text-center">Loading...</div>}
-            {geminiError && <div className="mt-2 p-2 bg-red-900/50 text-red-400 rounded">{geminiError}</div>}
-            {geminiResponse && (
-              <div className="mt-2 bg-gray-700 rounded p-2 space-y-2">
-                <div>
-                  <h3 className="font-bold">Summary:</h3>
-                  <p className="text-sm">{geminiResponse.summary}</p>
-                </div>
-                <div>
-                  <h3 className="font-bold">New Code:</h3>
-                  <pre className="bg-gray-800 border border-gray-600 rounded p-2 text-sm overflow-auto max-h-32">
-                    <code>{geminiResponse.newCode}</code>
-                  </pre>
-                </div>
-                <button
-                  onClick={handleAcceptCode}
-                  className="w-full bg-green-600 hover:bg-green-700 py-2 rounded transition"
-                >
-                  Accept Code
-                </button>
+          {geminiLoading && <div className="mt-2 text-center">Loading...</div>}
+          {geminiError && <div className="mt-2 p-2 bg-red-900/50 text-red-400 rounded">{geminiError}</div>}
+          {geminiResponse && (
+            <div className="mt-2 bg-gray-700 rounded p-2 space-y-2">
+              <div>
+                <h3 className="font-bold">Summary:</h3>
+                <p className="text-sm">{geminiResponse.summary}</p>
               </div>
-            )}
+              <div>
+                <h3 className="font-bold">New Code:</h3>
+                <pre className="bg-gray-800 border border-gray-600 rounded p-2 text-sm overflow-auto max-h-32">
+                  <code>{geminiResponse.newCode}</code>
+                </pre>
+              </div>
+              <button
+                onClick={handleAcceptCode}
+                className="w-full bg-green-600 hover:bg-green-700 py-2 rounded transition"
+              >
+                Accept Code
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -556,19 +563,19 @@ export default function IDEPage() {
           {isMobile ? (
             <div className="flex flex-col" style={panelStyle}>
               <div className="flex bg-gray-800 border-t border-gray-700">
-                <button 
+                <button
                   onClick={() => setActiveMobilePanel('input')}
                   className={`flex-1 p-2 text-sm ${activeMobilePanel === 'input' ? 'bg-gray-700' : ''}`}
                 >
                   Input
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveMobilePanel('output')}
                   className={`flex-1 p-2 text-sm ${activeMobilePanel === 'output' ? 'bg-gray-700' : ''}`}
                 >
                   Output
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveMobilePanel('gemini')}
                   className={`flex-1 p-2 text-sm ${activeMobilePanel === 'gemini' ? 'bg-gray-700' : ''}`}
                 >
@@ -580,109 +587,116 @@ export default function IDEPage() {
               {mobilePanelContent('gemini')}
             </div>
           ) : (
-             <div
-                ref={rightPanelRef}
-                className="flex flex-col bg-gray-950 overflow-hidden"
-                style={panelStyle}
-              >
-                {/* Input Section */}
-                <div className="flex flex-col overflow-hidden bg-gray-800" style={{ height: `${panelHeights[0]}%` }}>
-                   <div className="p-4 border-b border-gray-700 flex-shrink-0">
-                      <label className="block text-sm font-medium">Input:</label>
-                    </div>
-                    <div className="flex-1 p-4 pt-2 overflow-y-auto">
-                      <textarea
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        className="w-full h-full bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm resize-none"
-                        placeholder="Enter input for your code here..."
-                      />
-                    </div>
-                </div>
-
-                {/* Resizer 1 */}
-                <div
-                    className="h-2 w-full bg-gray-700 cursor-row-resize hover:bg-blue-500 active:bg-blue-600 transition-colors flex-shrink-0"
-                    onMouseDown={(e) => startPanelDrag(e, 0)}
+            <div
+              ref={rightPanelRef}
+              className="flex flex-col bg-gray-950 overflow-hidden"
+              style={panelStyle}
+            >
+              {/* Input Section */}
+              <div className="flex flex-col overflow-hidden" style={{ height: `${panelHeights[0]}%` }}>
+                <h2 className="text-lg p-4 font-bold flex items-center space-x-2">
+                  <TextCursorInput className="h-5 w-5" />
+                  <span>Input:</span>
+                </h2>
+                <div className="flex-1 p-4 pt-2">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    className="w-full h-full bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm resize-none"
+                    placeholder="Enter input for your code here..."
                   />
-                
-                {/* Output Section */}
-                <div className="flex flex-col overflow-hidden" style={{ height: `${panelHeights[1]}%` }}>
-                  <div className="p-4 flex-shrink-0">
-                      <h2 className="text-lg font-bold flex items-center space-x-2">
-                        <Play className="h-5 w-5" />
-                        <span>Output</span>
-                      </h2>
-                    </div>
-                    <div className="flex-1 p-4 pt-0 overflow-y-auto">
-                      <pre className="h-full bg-gray-800 border border-gray-700 rounded p-4 text-green-400 whitespace-pre-wrap overflow-auto text-sm">
-                        {output || 'Run the code to see output here.'}
-                      </pre>
-                    </div>
-                </div>
-
-                {/* Resizer 2 */}
-                <div
-                    className="h-2 w-full bg-gray-700 cursor-row-resize hover:bg-blue-500 active:bg-blue-600 transition-colors flex-shrink-0"
-                    onMouseDown={(e) => startPanelDrag(e, 1)}
-                  />
-
-                {/* Ask Assistant Section */}
-                <div className="flex flex-col overflow-hidden bg-gray-800" style={{ height: `${panelHeights[2]}%` }}>
-                   <div
-                    className="p-4 flex justify-between items-center cursor-pointer flex-shrink-0"
-                    onClick={() => setPanelHeights(panelHeights[2] > 10 ? [45,45,10] : [30,30,40])}
-                  >
-                    <h2 className="text-lg font-bold flex items-center space-x-2">
-                      <Sparkles className="h-5 w-5 text-purple-400" />
-                      <span>Ask Assistant</span>
-                    </h2>
-                    {panelHeights[2] > 10 ? <ChevronDown /> : <ChevronUp />}
-                  </div>
-                  
-                  {panelHeights[2] > 10 && (
-                     <div className="flex-1 p-4 pt-0 overflow-y-auto">
-                        <textarea
-                          value={geminiQuery}
-                          onChange={(e) => setGeminiQuery(e.target.value)}
-                          className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm"
-                          rows={2}
-                          placeholder="Ask Assistant to explain, refactor, or optimize..."
-                        />
-                        <button
-                          onClick={handleAskGemini}
-                          className="mt-2 w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded flex items-center justify-center space-x-2 transition text-sm"
-                          disabled={geminiLoading}
-                        >
-                          <span>{geminiLoading ? 'Thinking...' : 'Ask Assistant'}</span>
-                        </button>
-
-                        {geminiLoading && <div className="mt-2 text-center">Loading...</div>}
-                        {geminiError && <div className="mt-2 p-2 bg-red-900/50 text-red-400 rounded">{geminiError}</div>}
-                        {geminiResponse && (
-                          <div className="mt-2 bg-gray-700 rounded p-2 space-y-2">
-                            <div>
-                              <h3 className="font-bold">Summary:</h3>
-                              <p className="text-sm">{geminiResponse.summary}</p>
-                            </div>
-                            <div>
-                              <h3 className="font-bold">New Code:</h3>
-                              <pre className="bg-gray-800 border border-gray-600 rounded p-2 text-sm overflow-auto max-h-32">
-                                <code>{geminiResponse.newCode}</code>
-                              </pre>
-                            </div>
-                            <button
-                              onClick={handleAcceptCode}
-                              className="w-full bg-green-600 hover:bg-green-700 py-2 rounded transition"
-                            >
-                              Accept Code
-                            </button>
-                          </div>
-                        )}
-                    </div>
-                  )}
                 </div>
               </div>
+
+              {/* Resizer 1 */}
+              <div
+                className="h-2 w-full bg-gray-700 cursor-row-resize hover:bg-blue-500 active:bg-blue-600 transition-colors flex-shrink-0"
+                onMouseDown={(e) => startPanelDrag(e, 0)}
+              />
+
+              {/* Output Section */}
+              <div className="flex flex-col overflow-hidden" style={{ height: `${panelHeights[1]}%` }}>
+                <div className="p-4 flex-shrink-0">
+                  <h2 className="text-lg font-bold flex items-center space-x-2">
+                    <Play className="h-5 w-5" />
+                    <span>Output</span>
+                  </h2>
+                </div>
+                <div className="flex-1 p-4 pt-0">
+                  <pre className="h-full bg-gray-800 border border-gray-700 rounded p-4 text-green-400 whitespace-pre-wrap overflow-auto text-sm">
+                    {output || 'Run the code to see output here.'}
+                  </pre>
+                </div>
+              </div>
+
+              {/* Resizer 2 */}
+              <div
+                className="h-2 w-full bg-gray-700 cursor-row-resize hover:bg-blue-500 active:bg-blue-600 transition-colors flex-shrink-0"
+                onMouseDown={(e) => startPanelDrag(e, 1)}
+              />
+
+              {/* Ask Assistant Section */}
+              <div className="flex flex-col overflow-hidden bg-gray-800" style={{ height: `${panelHeights[2]}%` }}>
+                <div
+                  className="p-4 flex justify-between items-center cursor-pointer flex-shrink-0"
+                  onClick={() => setPanelHeights(panelHeights[2] > 10 ? [45, 45, 10] : [30, 30, 40])}
+                >
+                  <h2 className="text-lg font-bold flex items-center space-x-2">
+                    <Sparkles className="h-5 w-5 text-purple-400" />
+                    <span>Ask Assistant</span>
+                  </h2>
+                  {panelHeights[2] > 10 ? <ChevronDown /> : <ChevronUp />}
+                </div>
+
+                {panelHeights[2] > 10 && (
+                  <div className="flex-1 p-4 pt-0 overflow-y-auto">
+                    <textarea
+                      value={geminiQuery}
+                      onChange={(e) => setGeminiQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault(); // Prevent adding a new line
+                          handleAskGemini(); // Submit the query
+                        }
+                      }}
+                      className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm"
+                      rows={2}
+                      placeholder="Ask Assistant to explain, refactor, or optimize..."
+                    />
+                    <button
+                      onClick={handleAskGemini}
+                      className="mt-2 w-full bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded flex items-center justify-center space-x-2 transition text-sm"
+                      disabled={geminiLoading}
+                    >
+                      <span>{geminiLoading ? 'Thinking...' : 'Ask Assistant'}</span>
+                    </button>
+
+                    {geminiLoading && <div className="mt-2 text-center">Loading...</div>}
+                    {geminiError && <div className="mt-2 p-2 bg-red-900/50 text-red-400 rounded">{geminiError}</div>}
+                    {geminiResponse && (
+                      <div className="mt-2 bg-gray-700 rounded p-2 space-y-2">
+                        <div>
+                          <h3 className="font-bold">Summary:</h3>
+                          <p className="text-sm">{geminiResponse.summary}</p>
+                        </div>
+                        <div>
+                          <h3 className="font-bold">New Code:</h3>
+                          <pre className="bg-gray-800 border border-gray-600 rounded p-2 text-sm overflow-auto">
+                            <code>{geminiResponse.newCode}</code>
+                          </pre>
+                        </div>
+                        <button
+                          onClick={handleAcceptCode}
+                          className="w-full bg-green-600 hover:bg-green-700 py-2 rounded transition"
+                        >
+                          Accept Code
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
 

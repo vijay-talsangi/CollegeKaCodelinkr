@@ -110,7 +110,9 @@ export default function Dashboard() {
       javascript: `// Welcome to DSA IDE!\nconsole.log("Hello, World!");`,
       python: `# Welcome to DSA IDE!\nprint("Hello, World!")`,
       'c++': `// Welcome to DSA IDE!\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, World!" << endl;\n    return 0;\n}`,
-      java: `// Welcome to DSA IDE!\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`
+      java: `// Welcome to DSA IDE!\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`,
+      c: `// Welcome to DSA IDE!\n#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}`,
+      swift: `// Welcome to DSA IDE!\n//Dont use import Foundation it doesnt support here\n\nprint("Hello, World!")`,
     };
     return defaults[language] || defaults.javascript;
   };
@@ -120,7 +122,9 @@ export default function Dashboard() {
       javascript: `18.15.0`,
       python: `3.10.0`,
       'c++': `10.2.0`,
-      java: `15.0.2`
+      java: `15.0.2`,
+      c: `10.2.0`,
+      swift: `5.3.3`,
     };
     return defaults[language] || defaults.javascript;
   }
@@ -205,6 +209,8 @@ export default function Dashboard() {
                     <option value="python">Python</option>
                     <option value="c++">C++</option>
                     <option value="java">Java</option>
+                    <option value="c">C</option>
+                    <option value="swift">Swift</option>
                   </select>
                 </div>
                 <div>

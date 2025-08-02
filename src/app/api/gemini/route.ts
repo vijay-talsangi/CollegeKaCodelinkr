@@ -4,7 +4,7 @@ import axios from 'axios';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { code, query } = body;
+    const { code, query, language } = body;
 
     if (!code) {
       return NextResponse.json({ error: 'Code is required' }, { status: 400 });
@@ -14,22 +14,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Query is required' }, { status: 400 });
     }
 
+    // Add validation for language
+    if (!language) {
+      return NextResponse.json({ error: 'Language is required' }, { status: 400 });
+    }
+
     const prompt = `
       You are an expert programmer and a helpful assistant.
-      You will be given a piece of code and a query about it.
+      You will be given a piece of code, its programming language, and a query about it.
       Your task is to provide a summary of what you will do and then provide the new code.
       The code will likely be a data structure or algorithm question.
+      In swift code never use import Foundation.
       ALWAYS provide the response in the following format:
       **Summary:**
       A brief summary of the changes you are proposing.
 
       **New Code:**
-      \`\`\`<language>
       // The new code here
       \`\`\`
 
+      Here is the language: ${language}
+
       Here is the code:
-      \`\`\`
+      \`\`\`${language}
       ${code}
       \`\`\`
 
@@ -59,8 +66,7 @@ export async function POST(req: Request) {
     const geminiResponse = response.data.candidates[0].content.parts[0].text;
 
     const summaryMatch = geminiResponse.match(/\*\*Summary:\*\*\n([\s\S]*?)\n\*\*New Code:\*\*/);
-    const codeMatch = geminiResponse.match(/\*\*New Code:\*\*\n```(?:[a-zA-Z]+)?\n([\s\S]*?)```/);
-
+    const codeMatch = geminiResponse.match(/\*\*New Code:\*\*\n```(?:[a-zA-Z]+)?[\s\S]*?\n([\s\S]*?)```/);
 
     const summary = summaryMatch ? summaryMatch[1].trim() : 'Could not extract summary.';
     const newCode = codeMatch ? codeMatch[1].trim() : 'Could not extract code.';
