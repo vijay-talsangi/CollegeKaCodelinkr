@@ -21,13 +21,6 @@ import {
 import Link from 'next/link';
 import { useCallback } from 'react';
 
-// type Runtime = {
-//   language: string;
-//   version: string;
-//   aliases?: string[];
-//   runtime?: string;
-// };
-
 type Project = {
   id: string;
   title: string;
@@ -41,8 +34,6 @@ type Project = {
   updated_at: string;
 };
 
-// type PanelType = 'output' | 'debug';
-
 export default function IDEPage() {
   const { user } = useUser();
   const params = useParams();
@@ -53,12 +44,10 @@ export default function IDEPage() {
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState('javascript');
   const [version, setVersion] = useState('');
-  // const [_runtimes, setRuntimes] = useState<Runtime[]>([]);
   const [output, setOutput] = useState('');
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  // const [_panel, setPanel] = useState<PanelType>('output');
   const [editorWidth, setEditorWidth] = useState(70);
   const [isDragging, setIsDragging] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -77,7 +66,7 @@ export default function IDEPage() {
   const [geminiError, setGeminiError] = useState<string | null>(null);
 
   // State for collapsible panels on mobile
-  const [activeMobilePanel, setActiveMobilePanel] = useState<'input' | 'output' | 'gemini'>('output');
+  const [activeMobilePanel, setActiveMobilePanel] = useState<'input' | 'output' | 'gemini'>('input');
 
   // State for vertical panel resizing
   const [panelHeights, setPanelHeights] = useState([25, 45, 30]); // [input, output, gemini] percentages
@@ -99,15 +88,6 @@ export default function IDEPage() {
       window.removeEventListener('resize', checkIfMobile);
     };
   }, []);
-
-
-
-  // // Load runtimes
-  // useEffect(() => {
-  //   fetchRuntimes();
-  // }, []);
-
-
 
   const loadProject = useCallback(async () => {
     try {
@@ -148,20 +128,6 @@ export default function IDEPage() {
       loadProject();
     }
   }, [projectId, user, loadProject]);
-
-  // const fetchRuntimes = async () => {
-  //   try {
-  //     const res = await fetch('/api/listLanguage', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //     });
-
-  //     const data = await res.json();
-  //     setRuntimes(data);
-  //   } catch (error) {
-  //     console.error('Failed to fetch runtimes:', error);
-  //   }
-  // };
 
   const saveProject = useCallback(async () => {
     if (!project || !hasEditPermission) return;
@@ -289,7 +255,6 @@ export default function IDEPage() {
     }
   };
 
-
   // Resizing logic for main panels
   const startDrag = () => {
     if (isMobile) return;
@@ -405,17 +370,17 @@ export default function IDEPage() {
   const mobilePanelContent = (panel: 'input' | 'output' | 'gemini') => (
     <div className={`flex-1 overflow-y-auto p-4 ${activeMobilePanel === panel ? '' : 'hidden'}`}>
       {panel === 'input' && (
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="w-full h-full bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm resize-none"
-          placeholder="Enter input for your code here..."
-        />
-      )}
-      {panel === 'output' && (
-        <pre className="h-full bg-gray-800 border border-gray-700 rounded p-4 text-green-400 whitespace-pre-wrap overflow-auto text-sm">
-          {output || 'Run the code to see output here.'}
-        </pre>
+        <div>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="w-full h-full bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm overflow-auto resize-none"
+            placeholder="Enter input for your code here..."
+          />
+          <pre className="h-full bg-gray-800 border border-gray-700 rounded p-4 text-green-400 whitespace-pre-wrap overflow-auto text-sm">
+            {output || 'Run the code to see output here.'}
+          </pre>
+        </div>
       )}
       {panel === 'gemini' && (
         <div className="space-y-2">
@@ -519,14 +484,6 @@ export default function IDEPage() {
           </div>
         </header>
 
-        {/* Language Selection */}
-        <div className="bg-gray-800 border-b border-gray-700 p-3">
-          <div className="flex items-center space-x-4">
-            <label className="text-sm font-medium">Language:</label>
-            <span className="bg-gray-700 px-3 py-1 rounded text-sm capitalize">{language}</span>
-          </div>
-        </div>
-
         <div className={`flex flex-1 ${isMobile ? 'flex-col' : 'flex-row'} overflow-hidden`}>
           {/* Left Panel - Code Editor */}
           <div
@@ -565,19 +522,13 @@ export default function IDEPage() {
               <div className="flex bg-gray-800 border-t border-gray-700">
                 <button
                   onClick={() => setActiveMobilePanel('input')}
-                  className={`flex-1 p-2 text-sm ${activeMobilePanel === 'input' ? 'bg-gray-700' : ''}`}
+                  className={`flex-1 p-2 text-sm ${activeMobilePanel === 'input' ? 'bg-gray-900' : ''}`}
                 >
-                  Input
-                </button>
-                <button
-                  onClick={() => setActiveMobilePanel('output')}
-                  className={`flex-1 p-2 text-sm ${activeMobilePanel === 'output' ? 'bg-gray-700' : ''}`}
-                >
-                  Output
+                  Input/Output
                 </button>
                 <button
                   onClick={() => setActiveMobilePanel('gemini')}
-                  className={`flex-1 p-2 text-sm ${activeMobilePanel === 'gemini' ? 'bg-gray-700' : ''}`}
+                  className={`flex-1 p-2 text-sm ${activeMobilePanel === 'gemini' ? 'bg-gray-900' : ''}`}
                 >
                   Ask Assistant
                 </button>
@@ -596,7 +547,7 @@ export default function IDEPage() {
               <div className="flex flex-col overflow-hidden" style={{ height: `${panelHeights[0]}%` }}>
                 <h2 className="text-lg p-4 font-bold flex items-center space-x-2">
                   <TextCursorInput className="h-5 w-5" />
-                  <span>Input:</span>
+                  <span>Input</span>
                 </h2>
                 <div className="flex-1 p-4 pt-2">
                   <textarea
