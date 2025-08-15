@@ -40,3 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env
+
+# PWA service worker cache (generated)
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+
+# If next-pwa generates precache files
+public/precache-manifest.*.js
