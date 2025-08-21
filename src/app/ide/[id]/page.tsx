@@ -173,6 +173,8 @@ export default function IDEPage() {
 
   const handleRun = async () => {
     setLoading(true);
+    setActiveMobilePanel('input');
+    setPanelHeights(panelHeights[2] > 10 ? [45, 45, 10] : [30, 30, 40]);
     try {
       const res = await fetch('/api/run', {
         method: 'POST',
@@ -367,23 +369,23 @@ export default function IDEPage() {
     height: isMobile ? '50vh' : '100%'
   };
 
-  const mobilePanelContent = (panel: 'input' | 'output' | 'gemini') => (
+  const mobilePanelContent = (panel: 'input' | 'gemini') => (
     <div className={`flex-1 overflow-y-auto p-4 ${activeMobilePanel === panel ? '' : 'hidden'}`}>
       {panel === 'input' && (
-        <div>
+        <div style={{ height: '35vh' }}>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="w-full h-full bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm overflow-auto resize-none"
+            className="w-full h-25 bg-gray-700 border border-gray-600 rounded p-2 text-white text-sm overflow-auto resize-none"
             placeholder="Enter input for your code here..."
           />
-          <pre className="h-full bg-gray-800 border border-gray-700 rounded p-4 text-green-400 whitespace-pre-wrap overflow-auto text-sm">
+          <pre className="max-h-40 bg-gray-800 border border-gray-700 rounded p-4 text-green-400 whitespace-pre-wrap overflow-auto text-sm">
             {output || 'Run the code to see output here.'}
           </pre>
         </div>
       )}
       {panel === 'gemini' && (
-        <div className="space-y-2">
+        <div className="space-y-2 overflow-y-auto" style={{ height: '30vh' }}>
           <textarea
             value={geminiQuery}
             onChange={(e) => setGeminiQuery(e.target.value)}
@@ -415,7 +417,7 @@ export default function IDEPage() {
               </div>
               <div>
                 <h3 className="font-bold">New Code:</h3>
-                <pre className="bg-gray-800 border border-gray-600 rounded p-2 text-sm overflow-auto max-h-32">
+                <pre className="bg-gray-800 border border-gray-600 rounded p-2 text-sm overflow-auto">
                   <code>{geminiResponse.newCode}</code>
                 </pre>
               </div>
@@ -534,7 +536,6 @@ export default function IDEPage() {
                 </button>
               </div>
               {mobilePanelContent('input')}
-              {mobilePanelContent('output')}
               {mobilePanelContent('gemini')}
             </div>
           ) : (
@@ -574,7 +575,7 @@ export default function IDEPage() {
                   </h2>
                 </div>
                 <div className="flex-1 p-4 pt-0">
-                  <pre className="h-full bg-gray-800 border border-gray-700 rounded p-4 text-green-400 whitespace-pre-wrap overflow-auto text-sm">
+                  <pre className="max-h-70 bg-gray-800 border border-gray-700 rounded p-4 text-green-400 whitespace-pre-wrap overflow-auto text-sm">
                     {output || 'Run the code to see output here.'}
                   </pre>
                 </div>
