@@ -1,49 +1,73 @@
-import { SignInButton, SignUpButton, UserButton, currentUser } from '@clerk/nextjs';
-import Link from 'next/link';
-import { Code, Users, Zap, Shield, Globe, Rocket, Coffee } from 'lucide-react';
+'use client'; // <-- Add this at the very top
 
-export default async function Home() {
-  const user = await currentUser();
+import { useState } from 'react'; // <-- Import useState
+import { SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs'; // <-- Import useUser hook
+import Link from 'next/link';
+import { Code, Users, Zap, Shield, Globe, Rocket, Coffee, Menu, X } from 'lucide-react'; // <-- Import Menu and X icons
+
+export default function Home() {
+  const { user } = useUser(); // <-- Get user data with the hook
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // <-- State for the menu
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
       {/* Navigation */}
-      <nav className="flex flex-wrap items-center justify-between p-6 bg-black/20 backdrop-blur-sm">
+      <nav className="relative flex items-center justify-between p-6 bg-black/20 backdrop-blur-sm">
+        {/* Logo */}
         <div className="flex items-center space-x-2">
           <Code className="h-8 w-8 text-blue-400" />
           <span className="text-2xl font-bold text-white">Codelinkr</span>
         </div>
-        <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto mt-4 md:mt-0">
+
+        {/* Hamburger Button (Mobile Only) */}
+        <div className="md:hidden">
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X className="h-7 w-7 text-white" /> : <Menu className="h-7 w-7 text-white" />}
+          </button>
+        </div>
+
+        {/* Menu Links */}
+        <div
+          className={`
+            ${isMenuOpen ? 'flex' : 'hidden'}
+            absolute left-0 top-full w-full flex-col items-center gap-4 bg-gray-900/95 p-6 backdrop-blur-md
+            md:static md:w-auto md:flex-row md:bg-transparent md:p-0 md:flex
+          `}
+        >
           <Link
             href="/coffee"
-            className="flex items-center space-x-2 bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-lg text-black font-medium transition"
+            className="flex w-full justify-center items-center space-x-2 bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-lg text-black font-medium transition md:w-auto"
           >
             <Coffee className="h-5 w-5" />
             <span>Buy Me a Tea</span>
           </Link>
+
           {user ? (
-            <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+            <>
               <Link
                 href="/dashboard"
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition"
+                className="w-full text-center bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition md:w-auto"
               >
                 Dashboard
               </Link>
-              <UserButton afterSignOutUrl="/" />
-            </div>
+              <div className="mt-2 md:mt-0">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </>
           ) : (
-            <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+            <>
               <SignInButton mode="modal">
-                <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition">
+                <button className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition md:w-auto">
                   Sign In
                 </button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition">
+                <button className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition md:w-auto">
                   Get Started
                 </button>
               </SignUpButton>
-            </div>
+            </>
           )}
         </div>
       </nav>
@@ -65,7 +89,7 @@ export default async function Home() {
             </SignUpButton>
           )}
           {user && (
-            <Link 
+            <Link
               href="/dashboard"
               className="inline-block bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg text-white text-lg font-semibold transition transform hover:scale-105"
             >

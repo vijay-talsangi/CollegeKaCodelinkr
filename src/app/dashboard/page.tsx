@@ -159,7 +159,7 @@ export default function Dashboard() {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-300">Welcome, {user?.firstName}!</span>
+            <span className="hidden sm:block text-gray-300">Welcome, {user?.firstName}!</span>
             <UserButton afterSignOutUrl="/" />
           </div>
         </div>
