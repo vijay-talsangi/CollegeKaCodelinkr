@@ -5,6 +5,7 @@ import { SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import { useUser } from '@clerk/nextjs'; // <-- Import useUser hook
 import Link from 'next/link';
 import { Code, Users, Zap, Shield, Globe, Rocket, Coffee, Menu, X } from 'lucide-react'; // <-- Import Menu and X icons
+import ProductShowcase from '@/components/ProductShowcase';
 
 export default function Home() {
   const { user } = useUser(); // <-- Get user data with the hook
@@ -30,10 +31,10 @@ export default function Home() {
         {/* Menu Links */}
         <div
           className={`
-            ${isMenuOpen ? 'flex' : 'hidden'}
-            absolute left-0 top-full w-full flex-col items-center gap-4 bg-gray-900/95 p-6 backdrop-blur-md
-            md:static md:w-auto md:flex-row md:bg-transparent md:p-0 md:flex
-          `}
+          ${isMenuOpen ? 'flex' : 'hidden'}
+          absolute left-0 top-full w-full flex-col items-center gap-4 bg-gray-900/95 p-6 backdrop-blur-md
+          md:static md:w-auto md:flex-row md:bg-transparent md:p-0 md:flex md:backdrop-blur-none 
+        `}
         >
           <Link
             href="/coffee"
@@ -148,6 +149,8 @@ export default function Home() {
             </p>
           </div>
         </div>
+
+        <ProductShowcase />
 
         {/* CTA Section */}
         <div className="text-center bg-white/5 backdrop-blur-sm rounded-2xl p-12 border border-white/20">
