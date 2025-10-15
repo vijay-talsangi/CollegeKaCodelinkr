@@ -1,39 +1,59 @@
-'use client'; // <-- Add this at the very top
+'use client';
 
-import { useState } from 'react'; // <-- Import useState
-import { SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import { useUser } from '@clerk/nextjs'; // <-- Import useUser hook
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Code, Users, Zap, Shield, Globe, Rocket, Coffee, Menu, X } from 'lucide-react'; // <-- Import Menu and X icons
+import { Code, Users, Zap, Shield, Globe, Rocket, Coffee, Menu, X } from 'lucide-react';
 import ProductShowcase from '@/components/ProductShowcase';
 
 export default function Home() {
-  const { user } = useUser(); // <-- Get user data with the hook
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // <-- State for the menu
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/verify');
+      if (response.ok) {
+        setIsAuthenticated(true);
+      }
+    } catch {
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
-      {/* Navigation */}
       <nav className="relative flex items-center justify-between p-6 bg-black/20 backdrop-blur-sm">
-        {/* Logo */}
         <div className="flex items-center space-x-2">
           <Code className="h-8 w-8 text-blue-400" />
-          <span className="text-2xl font-bold text-white">Codelinkr</span>
+          <span className="text-2xl font-bold text-white">DSA IDE</span>
         </div>
 
-        {/* Hamburger Button (Mobile Only) */}
         <div className="md:hidden">
           <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X className="h-7 w-7 text-white" /> : <Menu className="h-7 w-7 text-white" />}
           </button>
         </div>
 
-        {/* Menu Links */}
         <div
           className={`
           ${isMenuOpen ? 'flex' : 'hidden'}
           absolute left-0 top-full w-full flex-col items-center gap-4 bg-gray-900/95 p-6 backdrop-blur-md
-          md:static md:w-auto md:flex-row md:bg-transparent md:p-0 md:flex md:backdrop-blur-none 
+          md:static md:w-auto md:flex-row md:bg-transparent md:p-0 md:flex md:backdrop-blur-none
         `}
         >
           <Link
@@ -44,52 +64,49 @@ export default function Home() {
             <span>Buy Me a Tea</span>
           </Link>
 
-          {user ? (
-            <>
-              <Link
-                href="/dashboard"
-                className="w-full text-center bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition md:w-auto"
-              >
-                Dashboard
-              </Link>
-              <div className="mt-2 md:mt-0">
-                <UserButton afterSignOutUrl="/" />
-              </div>
-            </>
+          {isAuthenticated ? (
+            <Link
+              href="/dashboard"
+              className="w-full text-center bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition md:w-auto"
+            >
+              Dashboard
+            </Link>
           ) : (
             <>
-              <SignInButton mode="modal">
-                <button className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition md:w-auto">
-                  Sign In
-                </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <button className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition md:w-auto">
-                  Get Started
-                </button>
-              </SignUpButton>
+              <Link
+                href="/login"
+                className="w-full text-center bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition md:w-auto"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/signup"
+                className="w-full text-center bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white font-medium transition md:w-auto"
+              >
+                Get Started
+              </Link>
             </>
           )}
         </div>
       </nav>
 
-      {/* Hero Section */}
       <div className="container mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            Code. Collaborate. <span className="text-blue-400">Create.</span>
+            Code. Learn. <span className="text-blue-400">Excel.</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            The ultimate online IDE for Data Structures and Algorithms with instant execution and sharing code link
+            The ultimate DSA IDE for students and professors with instant execution, AI evaluation, and comprehensive code review
           </p>
-          {!user && (
-            <SignUpButton mode="modal">
-              <button className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg text-white text-lg font-semibold transition transform hover:scale-105">
-                Start Coding for Free
-              </button>
-            </SignUpButton>
+          {!isAuthenticated && (
+            <Link
+              href="/signup"
+              className="inline-block bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg text-white text-lg font-semibold transition transform hover:scale-105"
+            >
+              Start Coding for Free
+            </Link>
           )}
-          {user && (
+          {isAuthenticated && (
             <Link
               href="/dashboard"
               className="inline-block bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg text-white text-lg font-semibold transition transform hover:scale-105"
@@ -99,7 +116,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
             <Zap className="h-12 w-12 text-yellow-400 mb-4" />
@@ -111,17 +127,17 @@ export default function Home() {
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
             <Users className="h-12 w-12 text-green-400 mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Real-time Collaboration</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">Student-Professor Flow</h3>
             <p className="text-gray-300">
-              Share your projects with teammates and collaborate in real-time.
+              Students submit code to professors organized by batches for review and grading.
             </p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
             <Shield className="h-12 w-12 text-blue-400 mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Secure & Private</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">AI-Powered Evaluation</h3>
             <p className="text-gray-300">
-              Your code is secure with enterprise-grade authentication and privacy controls for all your projects.
+              Automatic code evaluation by AI with professor oversight for comprehensive feedback.
             </p>
           </div>
 
@@ -129,7 +145,7 @@ export default function Home() {
             <Globe className="h-12 w-12 text-purple-400 mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">Share Anywhere</h3>
             <p className="text-gray-300">
-              Generate shareable links for your projects with customizable permissions for viewing or editing.
+              Generate shareable links for your projects with customizable permissions for viewing.
             </p>
           </div>
 
@@ -137,35 +153,35 @@ export default function Home() {
             <Code className="h-12 w-12 text-red-400 mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">Advanced Editor</h3>
             <p className="text-gray-300">
-              VSCode editor with syntax highlighting, auto-completion, and debugging tools for a premium coding experience.
+              Monaco editor with syntax highlighting and auto-completion for a premium coding experience.
             </p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
             <Rocket className="h-12 w-12 text-orange-400 mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Always Free</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">Role-Based Access</h3>
             <p className="text-gray-300">
-              Core features are completely free forever. No hidden costs, no execution limits for personal use.
+              Separate workflows for students and professors with secure authentication.
             </p>
           </div>
         </div>
 
         <ProductShowcase />
 
-        {/* CTA Section */}
         <div className="text-center bg-white/5 backdrop-blur-sm rounded-2xl p-12 border border-white/20">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to start coding?
           </h2>
           <p className="text-xl text-gray-300 mb-8">
-            Join developers who trust Codelinkr for their coding projects.
+            Join students and professors using DSA IDE for learning and teaching.
           </p>
-          {!user && (
-            <SignUpButton mode="modal">
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-4 rounded-lg text-white text-lg font-semibold transition transform hover:scale-105">
-                Create Free Account
-              </button>
-            </SignUpButton>
+          {!isAuthenticated && (
+            <Link
+              href="/signup"
+              className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-4 rounded-lg text-white text-lg font-semibold transition transform hover:scale-105"
+            >
+              Create Free Account
+            </Link>
           )}
         </div>
       </div>

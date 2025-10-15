@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,8 +17,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Codelinkr - Collaborative Code Editor",
-  description: "A powerful online IDE for Data Structures and Algorithms with real-time collaboration",
+  title: "DSA IDE - Student & Professor Code Platform",
+  description: "A powerful online IDE for Data Structures and Algorithms with AI evaluation and professor review",
   manifest: "/manifest.json",
 };
 
@@ -29,14 +28,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
   );
 }
